@@ -1,11 +1,12 @@
 package timetracker.models;
 
+import java.util.GregorianCalendar;
 import java.util.Objects;
 /**
  * Класс User реализует сущность Пользоваетель.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-07
+ * @version 2018-04-08
  * @since 2018-04-07
  */
 public class User {
@@ -25,10 +26,29 @@ public class User {
 	 * Токен.
 	 */
     private String token;
+    /**
+	 * Рабочий день.
+	 */
+    private GregorianCalendar wday;
 	/**
-	 * Конструктор.
+	 * Конструктор без параметров.
 	 */
 	public User() {
+	}
+    /**
+	 * Конструктор.
+     * @param id идентификатор.
+     * @param login логин.
+     * @param pass хэш пароля.
+     * @param token токен.
+     * @param wday рабочий день.
+	 */
+	public User(int id, String login, String pass, String token, GregorianCalendar wday) {
+        this.id = id;
+        this.login = login;
+        this.pass = pass;
+        this.token = token;
+        this.wday = wday;
 	}
 	/**
      * Сравнивает объекты.
@@ -44,7 +64,7 @@ public class User {
             return false;
         }
         User user = (User) obj;
-        if (this.id != user.getId() || !this.login.equals(user.getLogin())) {
+        if (this.id != user.getId() || !this.login.equals(user.getLogin()) || !this.pass.equals(user.getPass()) || !this.token.equals(user.getToken()) || !this.wday.equals(user.getWday())) {
             return false;
         }
         return true;
@@ -77,13 +97,27 @@ public class User {
     public String getToken() {
         return this.token;
     }
+    /**
+	 * Получает рабочий день.
+	 * @return рабочий день.
+	 */
+    public GregorianCalendar getWday() {
+        return this.wday;
+    }
+    /**
+	 * Получает строковое представление рабочего дня.
+	 * @return строковое представление рабочего дня.
+	 */
+	public String getWdayStr() {
+        return String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", this.wday);
+	}
 	/**
      * Возвращает хэш-код.
      * @return хэш-код.
      */
     @Override
     public int hashCode() {
-        return Objects.hash(this.id, this.login);
+        return Objects.hash(this.id, this.login, this.pass, this.token, this.wday);
     }
 	/**
 	 * Устанавливает идентификатор.
@@ -113,12 +147,19 @@ public class User {
     public void setToken(String token) {
         this.token = token;
     }
+    /**
+	 * Устанавливает рабочий день.
+	 * @param wday рабочий день.
+	 */
+    public void setWday(GregorianCalendar wday) {
+        this.wday = wday;
+    }
 	/**
 	 * Возвращает строковое представление.
 	 * @return строковое представление.
 	 */
 	@Override
 	public String toString() {
-		return String.format("user[id: %d, login: %s]", this.id, this.login);
+		return String.format("user[id: %d, login: %s, wday: %s]", this.id, this.login, this.getWdayStr());
 	}
 }

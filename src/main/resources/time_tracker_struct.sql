@@ -6,12 +6,14 @@ create table if not exists users (
 
 create table if not exists tokens (
     user_id int unsigned not null unique,
-    token char(32) not null unique
+    token char(32) not null unique,
+    wday date not null
 );
 
 create table if not exists marks (
     user_id int unsigned not null,
     token char(32) not null,
+    wday date not null,
     mark datetime not null default current_timestamp,
     state boolean not null
 );

@@ -21,7 +21,7 @@ import org.apache.logging.log4j.LogManager;
  * @version 2017-12-23
  * @since 2017-12-23
  */
-public class PropertyLoader {
+public final class PropertyLoader {
     /**
      * Логгер.
      */
@@ -37,7 +37,7 @@ public class PropertyLoader {
     /**
      * Конструктор без параметров.
      */
-    PropertyLoader() {
+    public PropertyLoader() {
         this.props = new Properties();
         try {
             this.path = new File(PropertyLoader.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getAbsolutePath() + "/";
@@ -51,7 +51,7 @@ public class PropertyLoader {
      * @param localName локальное имя properties-файла.
      * @throws IOException исключение ввода-вывода.
      */
-    PropertyLoader(String localName) throws IOException {
+    public PropertyLoader(String localName) throws IOException {
         this();
         this.load(localName);
     }

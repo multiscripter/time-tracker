@@ -29,7 +29,7 @@ public class MarkDAO {
      * @throws SQLException исключение SQL.
      */
     public void create(Mark mark) throws SQLException {
-        String query = String.format("insert into %s (user_id, token, state) values (%d, '%s', '%s', true)", this.db.getProperty("tbl_marks"), mark.getUserId(), mark.getToken(), mark.getState());
+        String query = String.format("insert into %s (user_id, token, wday, mark, state) values (%d, '%s', '%s', '%s', '%s', true)", this.db.getProperty("tbl_marks"), mark.getUserId(), mark.getToken(), mark.getWday(), mark.getMark(), mark.getState());
         this.db.insert(query);
     }
     /**
@@ -71,13 +71,18 @@ public class MarkDAO {
         	for (HashMap<String, String> entry : result) {
                 int userId = Integer.parseInt(entry.get("user_id"));
                 String token = entry.get("token");
-                GregorianCalendar cal = new GregorianCalendar();
-        		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        		String strDate = entry.get("mark");
-        		Date date = sdf.parse(strDate);
-        		cal.setTime(date);
+                GregorianCalendar calWday = new GregorianCalendar();
+        		SimpleDateFormat sdfWday = new SimpleDateFormat("yyyy-MM-dd");
+        		String strWday = entry.get("wday");
+        		Date dateWday = sdfWday.parse(strWday);
+        		calWday.setTime(dateWday);
+                GregorianCalendar calMark = new GregorianCalendar();
+        		SimpleDateFormat sdfMark = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        		String strMark = entry.get("mark");
+        		Date dateMark = sdfMark.parse(strMark);
+        		calMark.setTime(dateMark);
                 boolean state = entry.get("token").equals("1");
-                marks.add(new Mark(userId, token, cal, state));
+                marks.add(new Mark(userId, token, calWday, calMark, state));
             }
         }
         return marks;

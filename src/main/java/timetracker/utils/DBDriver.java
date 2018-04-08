@@ -2,6 +2,8 @@ package timetracker.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -23,10 +25,10 @@ import org.apache.logging.log4j.LogManager;
  * Для конфигурирования пула соединений с бд не используется JNDI.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-07
+ * @version 2018-04-08
  * @since 2018-04-07
  */
-public class DBDriver {
+public final class DBDriver {
     /**
      * Класс Синглетона.
      */
@@ -65,13 +67,16 @@ public class DBDriver {
         try {
             PropertyLoader pl = new PropertyLoader(this.getClass().getSimpleName() + ".properties");
     		this.props = pl.getProperties();
-            Class.forName(this.props.getProperty("class")).newInstance(); //load driver
             this.path = new File(DBDriver.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getAbsolutePath() + "/";
     		this.path = this.path.replaceFirst("^/(.:/)", "$1");
-            this.ds = (DataSource) Class.forName(this.props.getProperty("server")).newInstance();
+            Class cls = Class.forName(this.props.getProperty("server"));
+            Class[] types = new Class[] {Properties.class};
+            Constructor constructor = cls.getConstructor(types);
+            Object[] params = {this.props};
+            this.ds = (DataSource) constructor.newInstance(params);
     		this.executeSqlScript(this.props.getProperty("db_struct"));
     		this.setConnection();
-        } catch (URISyntaxException | IOException | NullPointerException | SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
+        } catch (URISyntaxException | IllegalArgumentException | InvocationTargetException | IOException | NullPointerException | SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException ex) {
             this.logger.error("ERROR", ex);
         }
 	}
@@ -123,14 +128,30 @@ public class DBDriver {
      * @throws IOException исключение ввода-вывода.
      * @throws SQLException исключение SQL.
      */
-    private void executeSqlScript(String localName) throws IOException, SQLException {
-        if (this.con == null) {
+    public void executeSqlScript(String localName) throws IOException, SQLException {
+        if (this.con == null || this.con.isClosed()) {
 			this.setConnection();
     	}
+        System.err.println("++ timetracker.utils.DBDriver.executeSqlScript() ++");
         byte[] bytes = Files.readAllBytes(Paths.get(path + localName));
-        String query = new String(bytes, "UTF-8");
+        String[] strings = new String(bytes, "UTF-8").split(";");
         try (Statement stmt = this.con.createStatement()) {
-            stmt.execute(query);
+            this.con.setAutoCommit(false);
+            for (String s : strings) {
+                s = s.trim();
+                if (!s.isEmpty()) {
+                    stmt.addBatch(s);
+                }
+            }
+            stmt.executeBatch();
+            try {
+                this.con.commit();
+            } catch (SQLException ex) {
+                con.rollback();
+                throw new SQLException(ex);
+            } finally {
+                this.con.setAutoCommit(true);
+            }
         } catch (SQLException ex) {
             throw new SQLException(ex);
         }

@@ -15,7 +15,7 @@ public class Tomcat extends BasicDataSource {
 	 * Получает источник данных.
      * @param props свойства бд.
 	 */
-    Tomcat(Properties props) {
+    public Tomcat(Properties props) {
         super();
         StringBuilder str =  new StringBuilder();
         str.append("jdbc:");

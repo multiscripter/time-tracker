@@ -26,8 +26,12 @@ public class Mark {
 	 * Идентификатор пользователя.
 	 */
 	private int userId;
+    /**
+	 * Рабочий день.
+	 */
+    private GregorianCalendar wday;
 	/**
-	 * Конструктор.
+	 * Конструктор без параметров.
 	 */
 	public Mark() {
 	}
@@ -35,12 +39,14 @@ public class Mark {
 	 * Конструктор.
      * @param userId идентификатор пользователя.
      * @param token токен.
+     * @param wday рабочий день.
      * @param mark метка времени.
      * @param state состояние.
 	 */
-	public Mark(final int userId, final String token, GregorianCalendar mark, final boolean state) {
+	public Mark(final int userId, final String token, GregorianCalendar wday, GregorianCalendar mark, final boolean state) {
         this.userId = userId;
         this.token = token;
+        this.wday = wday;
         this.mark = mark;
         this.state = state;
 	}
@@ -58,7 +64,7 @@ public class Mark {
             return false;
         }
         Mark other = (Mark) obj;
-        return !(this.userId != other.getUserId() || !this.token.equals(other.getToken()) || !this.mark.equals(other.getMark()) || this.state != other.getState());
+        return !(this.userId != other.getUserId() || !this.token.equals(other.getToken()) || !this.wday.equals(other.getWday()) || !this.mark.equals(other.getMark()) || this.state != other.getState());
     }
     /**
 	 * Получает метка времени.
@@ -96,12 +102,26 @@ public class Mark {
         return this.userId;
     }
     /**
+	 * Получает рабочий день.
+	 * @return рабочий день.
+	 */
+    public GregorianCalendar getWday() {
+        return this.wday;
+    }
+    /**
+	 * Получает строковое представление рабочего дня.
+	 * @return строковое представление рабочего дня.
+	 */
+	public String getWdayStr() {
+        return String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", this.wday);
+	}
+    /**
      * Возвращает хэш-код.
      * @return хэш-код.
      */
     @Override
     public int hashCode() {
-        return Objects.hash(this.userId, this.token, this.mark, this.state);
+        return Objects.hash(this.userId, this.token, this.wday, this.mark, this.state);
     }
     /**
 	 * Устанавливает метку времени.
@@ -132,11 +152,18 @@ public class Mark {
         this.userId = userId;
     }
     /**
+	 * Устанавливает рабочий день.
+	 * @param wday рабочий день.
+	 */
+    public void setWday(GregorianCalendar wday) {
+        this.wday = wday;
+    }
+    /**
 	 * Возвращает строковое представление.
 	 * @return строковое представление.
 	 */
 	@Override
 	public String toString() {
-		return String.format("mark[userId: %d, token: %s, mark: %s, state %b]", this.userId, this.token, this.mark, this.state);
+		return String.format("mark[userId: %d, token: %s, wday: %s, mark: %s, state %b]", this.userId, this.token, this.getWdayStr(), this.getMarkStr(), this.state);
 	}
 }
