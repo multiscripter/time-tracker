@@ -7,7 +7,7 @@ import org.apache.tomcat.dbcp.dbcp2.BasicDataSource;
  * Использован apache tomcat database connection pool.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-07
+ * @version 2018-04-09
  * @since 2018-04-07
  */
 public class Tomcat extends BasicDataSource {
@@ -30,6 +30,7 @@ public class Tomcat extends BasicDataSource {
         if (props.getProperty("db") != null) {
             str.append(props.getProperty("db"));
         }
+        this.setDriverClassName(props.getProperty("dbdriver"));
         this.setUrl(str.toString());
         this.setUsername(props.getProperty("user"));
         this.setPassword(props.getProperty("pass"));

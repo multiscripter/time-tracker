@@ -7,7 +7,7 @@ create table if not exists users (
 create table if not exists tokens (
     user_id int unsigned not null unique,
     token char(32) not null unique,
-    wday date not null
+    wday date default null
 );
 
 create table if not exists marks (

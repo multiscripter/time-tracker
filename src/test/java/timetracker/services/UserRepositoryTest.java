@@ -6,9 +6,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Properties;
 import org.junit.Before;
-//import org.junit.Ignore;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import timetracker.models.User;
 import timetracker.testing.DBDriver;
 import timetracker.utils.PropertyLoader;
@@ -16,7 +17,7 @@ import timetracker.utils.PropertyLoader;
  * Класс UserRepositoryTest тестирует класс UserRepository.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-08
+ * @version 2018-04-09
  * @since 2018-04-08
  */
 public class UserRepositoryTest {
@@ -24,14 +25,6 @@ public class UserRepositoryTest {
      * Драйвер бд.
      */
     private DBDriver dbDriver;
-    /**
-     * Кодировка.
-     */
-    private final String enc = Charset.defaultCharset().toString();
-    /**
-     * Свойства с настройками бд.
-     */
-    private Properties props;
     /**
      * Репозиторий пользователей.
      */
@@ -41,43 +34,58 @@ public class UserRepositoryTest {
      */
     @Before
     public void beforeTest() {
-        this.props = new Properties();
+        Properties props;
         try {
-            this.ur = new UserRepository(this.enc);
+            this.ur = new UserRepository();
+            this.ur.setEncoding(Charset.defaultCharset().toString());
             PropertyLoader pl = new PropertyLoader("DBDriver.properties");
-    		this.props = pl.getProperties();
-            Class.forName(this.props.getProperty("class")).newInstance();
-            String url = String.format("jdbc:%s://%s:%s/%s", this.props.getProperty("protocol"), this.props.getProperty("src"), this.props.getProperty("port"), this.props.getProperty("db"));
-            this.dbDriver = new DBDriver(url, this.props.getProperty("user"), props.getProperty("pass"));
+    		props = pl.getProperties();
+            Class.forName(props.getProperty("dbdriver")).newInstance();
+            String url = String.format("jdbc:%s://%s:%s/%s", props.getProperty("protocol"), props.getProperty("src"), props.getProperty("port"), props.getProperty("db"));
+            this.dbDriver = new DBDriver(url, props.getProperty("user"), props.getProperty("pass"));
             String path = new File(UserRepositoryTest.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getAbsolutePath() + "/";
             path = path.replaceFirst("^/(.:/)", "$1");
-            this.dbDriver.executeSqlScript(path + "../../src/main/resources/time_tracker_data.sql");
+            this.dbDriver.executeSqlScript(path + "../../src/main/resources/" + props.getProperty("db_test_data"));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
     /**
-     * Тестирует public String getPassHash(String pass) throws NoSuchAlgorithmException, UnsupportedEncodingException.
+     * Тестирует public String getHash(String str) throws NoSuchAlgorithmException, UnsupportedEncodingException.
+     */
+    @Ignore@Test
+    public void testGetHash() {
+        try {
+            assertEquals("4ac1b63dca561d274c6055ebf3ed97db", this.ur.getHash("test_pass"));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    /**
+     * Тестирует public User getUserByLogPass(String login, String pass) throws SQLException, NoSuchAlgorithmException, UnsupportedEncodingException.
      */
     @Test
-    public void testGetPassHash() {
+    public void testGetUserByLogPass() {
         try {
-            assertEquals("4ac1b63dca561d274c6055ebf3ed97db", this.ur.getPassHash("test_pass"));
+            String login = "test_user";
+            String query = String.format("select pass from users where login = '%s'", login);
+            LinkedList<HashMap<String, String>> result = this.dbDriver.select(query);
+            String expected = result.get(0).get("pass");
+            String actual = this.ur.getUserByLogPass(login, "test_pass").getPass();
+            assertEquals(expected, actual);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
     /**
      * Тестирует LinkedList<User> getUsers(String query).
+     * Пустой набор.
      */
     @Test
-    public void testGetUsers() {
+    public void testGetUsersEmptySet() {
         try {
-            LinkedList<HashMap<String, String>> result = this.dbDriver.select("select * from users order by id");
-            String expected = result.get(0).get("pass");
-            LinkedList<User> users = this.ur.getUsers("select * from users order by id");
-            String actual = users.getFirst().getPass();
-            assertEquals(expected, actual);
+            User user = this.ur.getUserByLogPass("Несуществующий логин", "test_pass");
+            assertNull(user);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

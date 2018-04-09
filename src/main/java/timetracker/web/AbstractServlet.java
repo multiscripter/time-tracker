@@ -18,7 +18,7 @@ import timetracker.utils.DBDriver;
  * AbstractServlet реализует Абстрактный сервлет.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-07
+ * @version 2018-04-09
  * @since 2018-03-26
  */
 public abstract class AbstractServlet extends HttpServlet {
@@ -35,7 +35,7 @@ public abstract class AbstractServlet extends HttpServlet {
     	try {
             // /var/lib/tomcat8/webapps/timetracker-1.0/WEB-INF/classes
             // \Program FIles\Apache Software Foundation\Tomcat 8.5\webapps\timetracker-1.0\WEB-INF\classes
-            String path = new File(Class.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getAbsolutePath() + "/";
+            String path = new File(AbstractServlet.class.getProtectionDomain().getCodeSource().getLocation().toURI()).getAbsolutePath() + "/";
 			path = path.replaceFirst("^/(.:/)", "$1");
 			XmlConfigurationFactory xcf = new XmlConfigurationFactory();
 			ConfigurationSource source = new ConfigurationSource(new FileInputStream(new File(path + "log4j2.xml")));

@@ -15,7 +15,7 @@ import timetracker.utils.DBDriver;
  * Класс MarkDAO реализует слой DAO для сущности Метка времени.
  *
  * @author Goureev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-07
+ * @version 2018-04-09
  * @since 2018-04-07
  */
 public class MarkDAO {
@@ -26,11 +26,17 @@ public class MarkDAO {
     /**
      * Добавляет запись с меткой времени.
      * @param mark запись с меткой времени.
+     * @return true если запись с меткой времени добавлена в бд. Иначе false.
      * @throws SQLException исключение SQL.
      */
-    public void create(Mark mark) throws SQLException {
-        String query = String.format("insert into %s (user_id, token, wday, mark, state) values (%d, '%s', '%s', '%s', '%s', true)", this.db.getProperty("tbl_marks"), mark.getUserId(), mark.getToken(), mark.getWday(), mark.getMark(), mark.getState());
-        this.db.insert(query);
+    public boolean create(Mark mark) throws SQLException {
+        boolean result = false;
+        String query = String.format("insert into %s (user_id, token, wday, mark, state) values (%d, '%s', '%s', '%s', true)", this.db.getProperty("tbl_marks"), mark.getUserId(), mark.getToken(), mark.getWdayStr(), mark.getMarkStr(), mark.getState());
+        HashMap<String, Integer> entries = this.db.insert(query);
+        if (entries.get("affected") > 0) {
+            result = true;
+        }
+        return result;
     }
     /**
      * Удаляет запись с меткой времени.

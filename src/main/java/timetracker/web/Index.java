@@ -6,11 +6,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import timetracker.services.MarkDAO;
 /**
  * Класс TimeTracker контроллер приложения Трэкер времени.
  *
  * @author Goureev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-07
+ * @version 2018-04-09
  * @since 2018-04-06
  */
 public class Index extends AbstractServlet {
@@ -18,6 +19,10 @@ public class Index extends AbstractServlet {
      * Логгер.
      */
     private Logger logger;
+    /**
+     * DAO метки времени.
+     */
+    private MarkDAO md;
     /**
 	 * Инициализатор.
      * @throws javax.servlet.ServletException исключение сервлета.
@@ -27,7 +32,7 @@ public class Index extends AbstractServlet {
     	try {
             super.init();
             this.logger = LogManager.getLogger(this.getClass().getSimpleName());
-            //this.ir = new ItemRepository();
+            this.md = new MarkDAO();
         } catch (Exception ex) {
 			this.logger.error("ERROR", ex);
 		}
@@ -44,9 +49,10 @@ public class Index extends AbstractServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		try {
             resp.setContentType("text/html");
+            req.setAttribute("indexRef", String.format("%s://%s:%s%s%s/", req.getScheme(), req.getServerName(), req.getServerPort(), req.getContextPath(), req.getServletPath()));
+            req.setAttribute("loginRef", String.format("%s://%s:%s%s%s/login/", req.getScheme(), req.getServerName(), req.getServerPort(), req.getContextPath(), req.getServletPath()));
             //List<Item> items = this.ir.getItems(new HashMap<>());
             //req.setAttribute("items", items);
-            //req.setAttribute("action", String.format("%s://%s:%s%s%s/create/", req.getScheme(), req.getServerName(), req.getServerPort(), req.getContextPath(), req.getServletPath()));
             this.getServletContext().getRequestDispatcher("/WEB-INF/views/index.jsp").include(req, resp);
         } catch (Exception ex) {
 			this.logger.error("ERROR", ex);
@@ -63,15 +69,8 @@ public class Index extends AbstractServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             String enc = (String) req.getAttribute("encoding");
-            String name;
-            String descr;
-            if (req.getParameter("type").equals("ajax")) {
-                name = req.getParameter("item");
-                descr = req.getParameter("descr");
-            } else {
-                name = new String(req.getParameter("item").getBytes("ISO-8859-1"), enc);
-                descr = new String(req.getParameter("descr").getBytes("ISO-8859-1"), enc);
-            }
+            String login = req.getParameter("login");
+            String pass = req.getParameter("pass");
             /*
             String createdStr = req.getParameter("created");
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd H:m:s");
@@ -104,13 +103,15 @@ public class Index extends AbstractServlet {
     }
     /**
 	 * Вызывается при уничтожении сервлета.
-	 *
+	 */
     @Override
     public void destroy() {
+        super.destroy();
+        /*
         try {
             this.idao.close();
         } catch (Exception ex) {
 			this.logger.error("ERROR", ex);
-		}
-    }*/
+		}*/
+    }
 }

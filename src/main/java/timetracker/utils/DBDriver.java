@@ -25,7 +25,7 @@ import org.apache.logging.log4j.LogManager;
  * Для конфигурирования пула соединений с бд не используется JNDI.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-08
+ * @version 2018-04-09
  * @since 2018-04-07
  */
 public final class DBDriver {
@@ -132,7 +132,6 @@ public final class DBDriver {
         if (this.con == null || this.con.isClosed()) {
 			this.setConnection();
     	}
-        System.err.println("++ timetracker.utils.DBDriver.executeSqlScript() ++");
         byte[] bytes = Files.readAllBytes(Paths.get(path + localName));
         String[] strings = new String(bytes, "UTF-8").split(";");
         try (Statement stmt = this.con.createStatement()) {
@@ -184,18 +183,19 @@ public final class DBDriver {
      * @return карту с результатом запроса к бд.
      * @throws SQLException исключение SQL.
      */
-    public HashMap<String, String> insert(String query) throws SQLException {
+    public HashMap<String, Integer> insert(String query) throws SQLException {
     	if (this.con == null) {
 			this.setConnection();
     	}
-    	HashMap<String, String> entry = new HashMap<>();
+    	HashMap<String, Integer> entry = new HashMap<>();
     	try (Statement stmt = this.con.createStatement()) {
-			if (stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS) > 0) {
+            int affected = stmt.executeUpdate(query, Statement.RETURN_GENERATED_KEYS);
+            entry.put("affected", affected);
+			if (affected > 0) {
 				ResultSet rs = stmt.getGeneratedKeys();
-                if (rs != null) {
-                    rs.next();
+                if (rs != null && rs.next()) {
                     ResultSetMetaData rsmd = rs.getMetaData();
-                	entry.put(rsmd.getColumnName(1), Integer.toString(rs.getInt(rsmd.getColumnName(1))));
+                	entry.put(rsmd.getColumnName(1), rs.getInt(rsmd.getColumnName(1)));
                 }
 			}
     	} catch (SQLException ex) {
