@@ -31,7 +31,7 @@
                         </tr>
                     </table>
                 </form>
-                <table class="mb-3 mx-auto js-tracker-actions d-none">
+                <table class="mb-2 mx-auto js-tracker-actions d-none">
                     <tr>
                         <td>
                             <a class="btn btn-primary js-tracker-action" data-action="resume" role="button" href="#">Пришёл</a>
@@ -44,7 +44,10 @@
                         </td>
                     </tr>
                 </table>
-                <table class="table mx-auto js-schedule d-none">
+                <div class="mb-2 text-center js-worktime d-none">
+                    Отработано времени: <span>00:00:00</span>
+                </div>
+                <table class="table mx-auto schedule js-schedule d-none">
                     <thead>
                         <tr>
                             <th>Рабочий день</th>

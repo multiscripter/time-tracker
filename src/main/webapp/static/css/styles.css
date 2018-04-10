@@ -11,6 +11,10 @@ th {
     white-space: nowrap;
 }
 
+.schedule tbody tr:first-child {
+    display: none;
+}
+
 @media only screen and (min-width: 768px) {
     
 }

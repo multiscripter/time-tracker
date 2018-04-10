@@ -62,6 +62,7 @@ public class UserRepository {
                 user.setId(Integer.parseInt(entry.get("id")));
                 user.setLogin(entry.get("login"));
                 user.setPass(entry.get("pass"));
+                user.setGmt(entry.get("gmt"));
             }
         }
         return user;

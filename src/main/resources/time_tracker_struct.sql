@@ -1,7 +1,8 @@
 create table if not exists users (
     id int unsigned not null auto_increment primary key,
     login varchar(64) not null unique,
-    pass char(32) not null unique
+    pass char(32) not null unique,
+    gmt char(2) not null default '0'
 );
 
 create table if not exists tokens (

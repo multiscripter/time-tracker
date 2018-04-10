@@ -6,14 +6,18 @@ import java.util.Objects;
  * Класс User реализует сущность Пользоваетель.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-08
+ * @version 2018-04-10
  * @since 2018-04-07
  */
 public class User {
+    /**
+	 * Часовой пояс.
+	 */
+    private String gmt;
 	/**
 	 * Идентификатор.
 	 */
-	private int id = 0;
+	private int id;
 	/**
 	 * Логин.
 	 */
@@ -42,13 +46,15 @@ public class User {
      * @param pass хэш пароля.
      * @param token токен.
      * @param wday рабочий день.
+     * @param gmt часовой пояс.
 	 */
-	public User(int id, String login, String pass, String token, GregorianCalendar wday) {
+	public User(int id, String login, String pass, String token, GregorianCalendar wday, String gmt) {
         this.id = id;
         this.login = login;
         this.pass = pass;
         this.token = token;
         this.wday = wday;
+        this.gmt = gmt;
 	}
 	/**
      * Сравнивает объекты.
@@ -64,11 +70,18 @@ public class User {
             return false;
         }
         User user = (User) obj;
-        if (this.id != user.getId() || !this.login.equals(user.getLogin()) || !this.pass.equals(user.getPass()) || !this.token.equals(user.getToken()) || !this.wday.equals(user.getWday())) {
+        if (this.id != user.getId() || !this.login.equals(user.getLogin()) || !this.pass.equals(user.getPass()) || !this.gmt.equals(user.getGmt())) {
             return false;
         }
         return true;
     }
+    /**
+	 * Получает часовой пояс.
+	 * @return часовой пояс.
+	 */
+	public String getGmt() {
+		return this.gmt;
+	}
 	/**
 	 * Получает идентификатор.
 	 * @return идентификатор.
@@ -117,8 +130,15 @@ public class User {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(this.id, this.login, this.pass, this.token, this.wday);
+        return Objects.hash(this.id, this.login, this.pass, this.gmt);
     }
+    /**
+	 * Получает часовой пояс.
+	 * @param gmt часовой пояс.
+	 */
+	public void setGmt(String gmt) {
+		this.gmt = gmt;
+	}
 	/**
 	 * Устанавливает идентификатор.
 	 * @param id идентификатор.
@@ -160,6 +180,6 @@ public class User {
 	 */
 	@Override
 	public String toString() {
-		return String.format("user[id: %d, login: %s, wday: %s]", this.id, this.login, this.getWdayStr());
+		return String.format("user[id: %d, login: %s, wday: %s, gmt: %s]", this.id, this.login, this.getWdayStr(), this.gmt);
 	}
 }

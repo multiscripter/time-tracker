@@ -1,24 +1,15 @@
 package timetracker.models;
 
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Objects;
 /**
- * Класс Mark реализует сущность Метка времени.
+ * Класс Token реализует сущность Токен.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-07
- * @since 2018-04-07
+ * @version 2018-04-10
+ * @since 2018-04-10
  */
-public class Mark {
-    /**
-	 * Метка времени.
-	 */
-    private GregorianCalendar mark;
-    /**
-	 * Состояние.
-	 */
-	private boolean state;
+public class Token {
     /**
 	 * Токен.
 	 */
@@ -31,25 +22,21 @@ public class Mark {
 	 * Рабочий день.
 	 */
     private GregorianCalendar wday;
-	/**
+    /**
 	 * Конструктор без параметров.
 	 */
-	public Mark() {
+	public Token() {
 	}
     /**
 	 * Конструктор.
      * @param userId идентификатор пользователя.
      * @param token токен.
      * @param wday рабочий день.
-     * @param mark метка времени.
-     * @param state состояние.
 	 */
-	public Mark(final int userId, final String token, GregorianCalendar wday, GregorianCalendar mark, final boolean state) {
+	public Token(final int userId, final String token, GregorianCalendar wday) {
         this.userId = userId;
         this.token = token;
         this.wday = wday;
-        this.mark = mark;
-        this.state = state;
 	}
     /**
      * Сравнивает объекты.
@@ -64,29 +51,8 @@ public class Mark {
         if (obj == null || this.getClass() != obj.getClass()) {
             return false;
         }
-        Mark other = (Mark) obj;
-        return !(this.userId != other.getUserId() || !this.token.equals(other.getToken()) || !this.wday.equals(other.getWday()) || !this.mark.equals(other.getMark()) || this.state != other.getState());
-    }
-    /**
-	 * Получает метка времени.
-	 * @return метка времени.
-	 */
-    public GregorianCalendar getMark() {
-        return this.mark;
-    }
-    /**
-	 * Получает строковое представление метки времени.
-	 * @return строковое представление метки времени.
-	 */
-	public String getMarkStr() {
-        return String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", this.mark);
-	}
-    /**
-	 * Получает состояние.
-	 * @return состояние.
-	 */
-    public boolean getState() {
-        return this.state;
+        Token other = (Token) obj;
+        return !(this.userId != other.getUserId() || !this.token.equals(other.getToken()));
     }
     /**
 	 * Получает токен.
@@ -114,7 +80,7 @@ public class Mark {
 	 * @return строковое представление рабочего дня.
 	 */
 	public String getWdayStr() {
-        return String.format("%1$tY-%1$tm-%1$td", this.wday);
+        return String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", this.wday);
 	}
     /**
      * Возвращает хэш-код.
@@ -122,22 +88,7 @@ public class Mark {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(this.userId, this.token, this.wday, this.mark, this.state);
-    }
-    /**
-	 * Устанавливает метку времени.
-	 * @param mark метка времени.
-	 */
-    public void setMark(GregorianCalendar mark) {
-        mark.set(Calendar.MILLISECOND, 0);
-        this.mark = mark;
-    }
-    /**
-	 * Устанавливает состояние.
-	 * @param state состояние.
-	 */
-    public void setState(final boolean state) {
-        this.state = state;
+        return Objects.hash(this.userId, this.token);
     }
     /**
 	 * Устанавливает токен.
@@ -166,6 +117,6 @@ public class Mark {
 	 */
 	@Override
 	public String toString() {
-		return String.format("mark[userId: %d, token: %s, wday: %s, mark: %s, state: %b]", this.userId, this.token, this.getWdayStr(), this.getMarkStr(), this.state);
+		return String.format("token[userId: %d, token: %s, wday: %s]", this.userId, this.token, this.getWdayStr());
 	}
 }

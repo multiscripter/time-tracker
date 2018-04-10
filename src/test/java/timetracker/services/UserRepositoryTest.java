@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Properties;
 import org.junit.Before;
-import org.junit.Ignore;
+//import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -53,7 +53,7 @@ public class UserRepositoryTest {
     /**
      * Тестирует public String getHash(String str) throws NoSuchAlgorithmException, UnsupportedEncodingException.
      */
-    @Ignore@Test
+    @Test
     public void testGetHash() {
         try {
             assertEquals("4ac1b63dca561d274c6055ebf3ed97db", this.ur.getHash("test_pass"));
@@ -68,10 +68,14 @@ public class UserRepositoryTest {
     public void testGetUserByLogPass() {
         try {
             String login = "test_user";
-            String query = String.format("select pass from users where login = '%s'", login);
+            String query = String.format("select * from users where login = '%s'", login);
             LinkedList<HashMap<String, String>> result = this.dbDriver.select(query);
-            String expected = result.get(0).get("pass");
-            String actual = this.ur.getUserByLogPass(login, "test_pass").getPass();
+            User expected = new User();
+            expected.setId(Integer.parseInt(result.getFirst().get("id")));
+            expected.setLogin(result.getFirst().get("login"));
+            expected.setPass(result.getFirst().get("pass"));
+            expected.setGmt(result.getFirst().get("gmt"));
+            User actual = this.ur.getUserByLogPass(login, "test_pass");
             assertEquals(expected, actual);
         } catch (Exception ex) {
             ex.printStackTrace();

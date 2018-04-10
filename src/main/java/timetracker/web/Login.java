@@ -3,7 +3,9 @@ package timetracker.web;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.LinkedList;
 import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonWriter;
@@ -13,6 +15,9 @@ import javax.servlet.ServletException;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 import timetracker.models.User;
+import timetracker.models.Mark;
+import timetracker.models.Token;
+import timetracker.services.MarkDAO;
 import timetracker.services.TokenDAO;
 import timetracker.services.UserRepository;
 /**
@@ -27,6 +32,10 @@ public class Login extends AbstractServlet {
      * Логгер.
      */
     private Logger logger;
+    /**
+     * DAO метки времени.
+     */
+    private MarkDAO mdao;
     /**
      * DAO токена.
      */
@@ -44,6 +53,7 @@ public class Login extends AbstractServlet {
     	try {
             super.init();
             this.logger = LogManager.getLogger(this.getClass().getSimpleName());
+            this.mdao = new MarkDAO();
             this.tdao = new TokenDAO();
             this.ur = new UserRepository();
         } catch (Exception ex) {
@@ -82,12 +92,30 @@ public class Login extends AbstractServlet {
                 if (!login.isEmpty() && !pass.isEmpty()) {
                     User user = this.ur.getUserByLogPass(login, pass);
                     if (user != null) {
-                        if (this.tdao.create(user)) {
+                        Token token = this.tdao.read("user_id", Integer.toString(user.getId()));
+                        if (token != null) {
                             jsonb.add("status", "ok");
-                            jsonb.add("token", user.getToken());
+                            jsonb.add("token", token.getToken());
+                            LinkedList<Mark> marks = this.mdao.read(token.getToken());
+                            JsonArrayBuilder jsonMarks = Json.createArrayBuilder();
+                            if (!marks.isEmpty()) {
+                                for (Mark mark : marks) {
+                                    JsonObjectBuilder jsonMark = Json.createObjectBuilder();
+                                    jsonMark.add("wday", mark.getWdayStr());
+                                    jsonMark.add("mark", mark.getMarkStr());
+                                    jsonMark.add("state", mark.getState());
+                                    jsonMarks.add(jsonMark);
+                                }
+                            }
+                            jsonb.add("marks", jsonMarks);
                         } else {
-                            jsonb.add("status", "error");
-                            errors.add("token", "nonexists");
+                            if (this.tdao.create(user)) {
+                                jsonb.add("status", "ok");
+                                jsonb.add("token", user.getToken());
+                            } else {
+                                jsonb.add("status", "error");
+                                errors.add("token", "notcreated");
+                            }
                         }
                     } else {
                         jsonb.add("status", "error");
@@ -96,24 +124,24 @@ public class Login extends AbstractServlet {
                 } else {
                     jsonb.add("status", "error");
                     if (login.isEmpty()) {
-                        errors.add("login", "empty");
+                        errors.add("login", "param-empty");
                     }
                     if (pass.isEmpty()) {
-                        errors.add("pass", "empty");
+                        errors.add("pass", "param-empty");
                     }
                 }
             } else {
                 jsonb.add("status", "error");
                 if (!req.getParameterMap().containsKey("login")) {
-                    errors.add("login", "nonexists");
+                    errors.add("login", "param-nonexists");
                 }
                 if (!req.getParameterMap().containsKey("pass")) {
-                    errors.add("pass", "nonexists");
+                    errors.add("pass", "param-nonexists");
                 }
             }
         } catch (Exception ex) {
             this.logger.error("ERROR", ex);
-            errors.add("servlet", "exception");
+            errors.add("controller", "exception");
         } finally {
             jsonb.add("errors", errors);
             JsonObject json = jsonb.build();

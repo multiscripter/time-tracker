@@ -14,7 +14,7 @@ import static org.junit.Assert.assertFalse;
  * Класс UserTest тестирует класс User.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-08
+ * @version 2018-04-10
  * @since 2018-04-08
  */
 public class UserTest {
@@ -37,7 +37,7 @@ public class UserTest {
         wday.set(Calendar.MILLISECOND, 0);
         String token = this.getHash(login + wday.toString());
         wday.set(2018, 3, 8, 0, 0, 0);
-        this.user = new User(1, login, pass, token, wday);
+        this.user = new User(1, login, pass, token, wday, "+4");
     }
     /**
      * Тестирует public boolean equals(Object obj).
@@ -57,6 +57,7 @@ public class UserTest {
         other.setPass(opass);
         other.setToken(otoken);
         other.setWday(owday);
+        other.setGmt("+4");
         assertEquals(this.user, other);
     }
     /**
@@ -97,8 +98,15 @@ public class UserTest {
         tedfiwday.set(Calendar.MILLISECOND, 0);
         String tedfitoken = this.getHash(tedfilogin + tedfiwday.toString());
         tedfiwday.set(2018, 3, 8, 0, 0, 0);
-        User tedfi = new User(0, tedfilogin, tedfipass, tedfitoken, tedfiwday);
+        User tedfi = new User(0, tedfilogin, tedfipass, tedfitoken, tedfiwday, "+4");
         assertFalse(this.user.equals(tedfi));
+    }
+    /**
+     * Тестирует public int getGmt().
+     */
+    @Test
+    public void testGetGmt() {
+        assertEquals("+4", this.user.getGmt());
     }
     /**
      * Тестирует public int getId().
@@ -118,7 +126,7 @@ public class UserTest {
         hwday.set(Calendar.MILLISECOND, 0);
         String htoken = this.getHash(hlogin + hwday.toString());
         hwday.set(2018, 3, 8, 0, 0, 0);
-        int expected = Objects.hash(1, hlogin, hpass, htoken, hwday);
+        int expected = Objects.hash(1, hlogin, hpass, "+4");
         assertEquals(expected, this.user.hashCode());
     }
     /**
@@ -126,7 +134,7 @@ public class UserTest {
      */
     @Test
     public void testToString() {
-        String expected = "user[id: 1, login: Тестовой логин, wday: 2018-04-08 00:00:00]";
+        String expected = "user[id: 1, login: Тестовой логин, wday: 2018-04-08 00:00:00, gmt: +4]";
         assertEquals(expected, this.user.toString());
     }
     /**
