@@ -31,6 +31,23 @@
                         </tr>
                     </table>
                 </form>
+                <table class="text-center mb-2 mx-auto js-wdays d-none">
+                    <thead>
+                        <tr>
+                            <th colspan="2">Начать новый рабочий день?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <a class="btn btn-primary js-wday" data-action="wdaynew" role="button" href="#">Да</a>
+                            </td>
+                            <td>
+                                <a class="btn btn-primary js-wday" data-action="wdayold" role="button" href="#">Нет</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
                 <table class="mb-2 mx-auto js-tracker-actions d-none">
                     <tr>
                         <td>
@@ -40,7 +57,7 @@
                             <a class="btn btn-primary js-tracker-action" data-action="wait" role="button" href="#">Ушёл</a>
                         </td>
                         <td>
-                            <a class="btn btn-primary js-tracker-action" data-action="done" role="button" href="#">Отработал</a>
+                            <a class="btn btn-primary js-tracker-action d-none" data-action="done" role="button" href="#">Отработал</a>
                         </td>
                     </tr>
                 </table>

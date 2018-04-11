@@ -4,6 +4,6 @@ insert into users (login, pass) values ('test_user3', '0d275885fea21ff4263bcba2f
 /* Token is md5 from string: test_user2018-04-07 08:02:00 */
 insert into tokens (user_id, token, wday) values (1, '13fe018b338e5f605a7eb281ed3134dc', '2018-04-07');
 /*
-select * from marks where token = '13fe018b338e5f605a7eb281ed3134dc' order by mark;
-update marks set mark = '2018-04-07 18:05:00' where token = '13fe018b338e5f605a7eb281ed3134dc' and mark = '2018-04-07 17:05:00';
+select * from marks order by mark;
+update marks set mark = '2018-04-07 18:05:00' where user_id = 1 and mark = '2018-04-07 17:05:00';
 */

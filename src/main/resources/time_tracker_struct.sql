@@ -13,7 +13,6 @@ create table if not exists tokens (
 
 create table if not exists marks (
     user_id int unsigned not null,
-    token char(32) not null,
     wday date not null,
     mark datetime not null default current_timestamp,
     state boolean not null

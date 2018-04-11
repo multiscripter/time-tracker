@@ -7,7 +7,7 @@ import java.util.Objects;
  * Класс Mark реализует сущность Метка времени.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-07
+ * @version 2018-04-11
  * @since 2018-04-07
  */
 public class Mark {
@@ -19,10 +19,6 @@ public class Mark {
 	 * Состояние.
 	 */
 	private boolean state;
-    /**
-	 * Токен.
-	 */
-    private String token;
     /**
 	 * Идентификатор пользователя.
 	 */
@@ -39,14 +35,12 @@ public class Mark {
     /**
 	 * Конструктор.
      * @param userId идентификатор пользователя.
-     * @param token токен.
      * @param wday рабочий день.
      * @param mark метка времени.
      * @param state состояние.
 	 */
-	public Mark(final int userId, final String token, GregorianCalendar wday, GregorianCalendar mark, final boolean state) {
+	public Mark(final int userId, GregorianCalendar wday, GregorianCalendar mark, final boolean state) {
         this.userId = userId;
-        this.token = token;
         this.wday = wday;
         this.mark = mark;
         this.state = state;
@@ -65,7 +59,7 @@ public class Mark {
             return false;
         }
         Mark other = (Mark) obj;
-        return !(this.userId != other.getUserId() || !this.token.equals(other.getToken()) || !this.wday.equals(other.getWday()) || !this.mark.equals(other.getMark()) || this.state != other.getState());
+        return !(this.userId != other.getUserId() || !this.wday.equals(other.getWday()) || !this.mark.equals(other.getMark()) || this.state != other.getState());
     }
     /**
 	 * Получает метка времени.
@@ -87,13 +81,6 @@ public class Mark {
 	 */
     public boolean getState() {
         return this.state;
-    }
-    /**
-	 * Получает токен.
-	 * @return токен.
-	 */
-    public String getToken() {
-        return this.token;
     }
     /**
 	 * Получает идентификатор пользователя.
@@ -122,7 +109,7 @@ public class Mark {
      */
     @Override
     public int hashCode() {
-        return Objects.hash(this.userId, this.token, this.wday, this.mark, this.state);
+        return Objects.hash(this.userId, this.wday, this.mark, this.state);
     }
     /**
 	 * Устанавливает метку времени.
@@ -138,13 +125,6 @@ public class Mark {
 	 */
     public void setState(final boolean state) {
         this.state = state;
-    }
-    /**
-	 * Устанавливает токен.
-	 * @param token метка времени.
-	 */
-    public void setToken(final String token) {
-        this.token = token;
     }
     /**
 	 * Устанавливает идентификатор пользователя.
@@ -166,6 +146,6 @@ public class Mark {
 	 */
 	@Override
 	public String toString() {
-		return String.format("mark[userId: %d, token: %s, wday: %s, mark: %s, state: %b]", this.userId, this.token, this.getWdayStr(), this.getMarkStr(), this.state);
+		return String.format("mark[userId: %d, wday: %s, mark: %s, state: %b]", this.userId, this.getWdayStr(), this.getMarkStr(), this.state);
 	}
 }

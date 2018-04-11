@@ -19,7 +19,7 @@ import timetracker.utils.PropertyLoader;
  * Класс MarkDAOTest тестирует класс MarkDAO.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-09
+ * @version 2018-04-11
  * @since 2018-04-09
  */
 public class MarkDAOTest {
@@ -67,10 +67,9 @@ public class MarkDAOTest {
             tcwday.set(Calendar.MINUTE, 0);
             tcwday.set(Calendar.SECOND, 0);
             tcwday.set(Calendar.MILLISECOND, 0);
-            String tctoken = this.ur.getHash(tclogin + tcwday.toString());
             GregorianCalendar tctimeMark = new GregorianCalendar();
             tctimeMark.set(Calendar.MILLISECOND, 0);
-            this.mark = new Mark(0, tctoken, tcwday, tctimeMark, false);
+            this.mark = new Mark(0, tcwday, tctimeMark, false);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -105,7 +104,7 @@ public class MarkDAOTest {
     public void testRead() {
         try {
             String trtoken = "13fe018b338e5f605a7eb281ed3134dc";
-            List<HashMap<String, String>> expected = this.dbDriver.select(String.format("select * from %s where token = '%s'", this.props.getProperty("tbl_marks"), trtoken));
+            List<HashMap<String, String>> expected = this.dbDriver.select(String.format("select * from %1s, %2s where %1s.user_id = %2s.user_id and %1s.wday = %2s.wday and %1.token = '%3s' order by mark", this.props.getProperty("tbl_tokens"), this.props.getProperty("tbl_marks"), trtoken));
             List<Mark> actual = this.md.read(trtoken);
             assertEquals(expected.size(), actual.size());
         } catch (Exception ex) {
@@ -118,7 +117,7 @@ public class MarkDAOTest {
     @Ignore@Test
     public void testReadNoMarks() {
         try {
-            List<Mark> marks = this.md.read(this.mark.getToken());
+            List<Mark> marks = this.md.read("fake_token");
             assertEquals(0, marks.size());
         } catch (Exception ex) {
             ex.printStackTrace();

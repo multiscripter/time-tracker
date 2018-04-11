@@ -1,13 +1,17 @@
 package timetracker.utils;
 
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.ListIterator;
 import java.util.LinkedList;
 import java.util.TimeZone;
 import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import timetracker.models.Mark;
 import timetracker.models.Token;
 import timetracker.services.MarkDAO;
@@ -15,7 +19,7 @@ import timetracker.services.MarkDAO;
  * Класс Utils реализует вспомогательные утилиты.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-10
+ * @version 2018-04-11
  * @since 2018-04-10
  */
 public class Utils {
@@ -24,13 +28,35 @@ public class Utils {
      */
     private MarkDAO mdao;
     /**
+     * Логгер.
+     */
+    private Logger logger = LogManager.getLogger(this.getClass().getName());
+    /**
      * Конструктор.
      */
     public Utils() {
         this.mdao = new MarkDAO();
     }
     /**
-	 * Обрабатывает.
+	 * Добавляет метки из списка в json-объект.
+     * @param marks список меток.
+     * @param jsonb JSON-строитель.
+	 */
+    public void addMarksToJson(LinkedList<Mark> marks, JsonObjectBuilder jsonb) {
+        JsonArrayBuilder jsonMarks = Json.createArrayBuilder();
+        if (!marks.isEmpty()) {
+            for (Mark mark : marks) {
+                JsonObjectBuilder jsonMark = Json.createObjectBuilder();
+                jsonMark.add("wday", mark.getWdayStr());
+                jsonMark.add("mark", mark.getMarkStr());
+                jsonMark.add("state", mark.getState());
+                jsonMarks.add(jsonMark);
+            }
+        }
+        jsonb.add("marks", jsonMarks);
+    }
+    /**
+	 * Получает рабочее время.
      * @param marks список меток.
      * @return массив с временем.
 	 */
@@ -68,7 +94,6 @@ public class Utils {
     public boolean process(Token token, boolean state, String methodName, JsonObjectBuilder jsonb, JsonObjectBuilder errors) throws SQLException {
         Mark mark = new Mark();
         mark.setUserId(token.getUserId());
-        mark.setToken(token.getToken());
         mark.setWday(token.getWday());
         mark.setMark(new GregorianCalendar());
         mark.setState(state);
@@ -94,5 +119,21 @@ public class Utils {
             errors.add("mark", "notcreated");
         }
         return result;
+    }
+    /**
+	 * Проверяет валидность рабочего дня с учётом часового пояса пользователя.
+     * @param token токен.
+     * @return true если рабочий и текущий дни - одинаковые. Иначе false.
+     * @throws SQLException исключение SQL.
+	 */
+    public boolean validateWday(Token token) throws SQLException {
+        TimeZone tz = this.mdao.getTimeZone(token.getUserId());
+        GregorianCalendar today = new GregorianCalendar(tz);
+        GregorianCalendar wday = new GregorianCalendar(tz);
+        wday.setTime(token.getWday().getTime());
+        this.logger.error("today.toString(): " + today.toString());
+        this.logger.error("wday.toString(): " + wday.toString());
+        wday.setTime(token.getWday().getTime());
+        return today.get(Calendar.DAY_OF_MONTH) == wday.get(Calendar.DAY_OF_MONTH);
     }
 }

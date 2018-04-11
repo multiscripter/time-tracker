@@ -8,6 +8,8 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.TimeZone;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import timetracker.models.Mark;
 import timetracker.utils.DBDriver;
 
@@ -15,7 +17,7 @@ import timetracker.utils.DBDriver;
  * Класс MarkDAO реализует слой DAO для сущности Метка времени.
  *
  * @author Goureev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-09
+ * @version 2018-04-11
  * @since 2018-04-07
  */
 public class MarkDAO {
@@ -24,6 +26,10 @@ public class MarkDAO {
      */
 	private final DBDriver db = DBDriver.getInstance();
     /**
+     * Логгер.
+     */
+    private Logger logger = LogManager.getLogger(this.getClass().getName());
+    /**
      * Добавляет запись с меткой времени.
      * @param mark запись с меткой времени.
      * @return true если запись с меткой времени добавлена в бд. Иначе false.
@@ -31,7 +37,7 @@ public class MarkDAO {
      */
     public boolean create(Mark mark) throws SQLException {
         boolean result = false;
-        String query = String.format("insert into %s (user_id, token, wday, mark, state) values (%d, '%s', '%s', '%s', %s)", this.db.getProperty("tbl_marks"), mark.getUserId(), mark.getToken(), mark.getWdayStr(), mark.getMarkStr(), mark.getState());
+        String query = String.format("insert into %s (user_id, wday, mark, state) values (%d, '%s', '%s', %s)", this.db.getProperty("tbl_marks"), mark.getUserId(), mark.getWdayStr(), mark.getMarkStr(), mark.getState());
         HashMap<String, Integer> entries = this.db.insert(query);
         if (entries.get("affected") > 0) {
             result = true;
@@ -46,7 +52,7 @@ public class MarkDAO {
      */
     public boolean delete(Mark mark) throws SQLException {
         boolean result = false;
-        String query = String.format("delete from %s where token = '%s' and mark = '%s'", this.db.getProperty("tbl_marks"), mark.getToken(), mark.getMarkStr());
+        String query = String.format("delete from %s where user_id = '%d' and mark = '%s'", this.db.getProperty("tbl_marks"), mark.getUserId(), mark.getMarkStr());
         if (this.db.delete(query) > 0) {
         	result = true;
         }
@@ -54,13 +60,13 @@ public class MarkDAO {
     }
     /**
      * Получает все записи с меткой времени по токену.
-     * @param token токен записей.
+     * @param token токен.
      * @return список записей.
      * @throws SQLException исключение SQL.
      * @throws ParseException исключение парсинга.
      */
     public LinkedList<Mark> read(final String token) throws SQLException, ParseException {
-        String query = String.format("select * from %s where token = '%s' order by mark", this.db.getProperty("tbl_marks"), token);
+        String query = String.format("select * from %1$s, %2$s where %1$s.user_id = %2$s.user_id and %1$s.wday = %2$s.wday and %1$s.token = '%3$s' order by mark", this.db.getProperty("tbl_tokens"), this.db.getProperty("tbl_marks"), token);
         LinkedList<HashMap<String, String>> rl = this.db.select(query);
         return this.processResult(rl);
     }
@@ -76,7 +82,6 @@ public class MarkDAO {
         if (!result.isEmpty()) {
             int userId = Integer.parseInt(result.getFirst().get("user_id"));
             TimeZone tz = this.getTimeZone(userId);
-            String token = result.getFirst().get("token");
         	for (HashMap<String, String> entry : result) {
                 GregorianCalendar calWday = new GregorianCalendar();
         		SimpleDateFormat sdfWday = new SimpleDateFormat("yyyy-MM-dd");
@@ -89,7 +94,7 @@ public class MarkDAO {
         		Date dateMark = sdfMark.parse(strMark);
         		calMark.setTime(dateMark);
                 boolean state = entry.get("state").equals("1");
-                marks.add(new Mark(userId, token, calWday, calMark, state));
+                marks.add(new Mark(userId, calWday, calMark, state));
             }
         }
         return marks;
@@ -114,7 +119,7 @@ public class MarkDAO {
      */
     public boolean update(Mark mark) throws SQLException {
         boolean result = false;
-        String query = String.format("update %s set mark = current_timestamp where token = '%s' and mark = '%s'", this.db.getProperty("tbl_marks"), mark.getToken(), mark.getMarkStr());
+        String query = String.format("update %s set mark = current_timestamp where user_id = %d and wday = '%s' and mark = '%s'", this.db.getProperty("tbl_marks"), mark.getUserId(), mark.getWdayStr(), mark.getMarkStr());
         if (this.db.update(query) > 0) {
         	result = true;
         }

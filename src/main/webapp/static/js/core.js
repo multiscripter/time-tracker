@@ -4,6 +4,7 @@
             form: null,
             token: null,
             btnLogout: null,
+            wdays: null,
             actions: null,
             worktime: null,
             schedule: null,
@@ -15,6 +16,8 @@
                 tr.children('td:nth-child(3)').attr('data-state',
                     mark.state).text(mark.state ? 'На работе' : 'Отсутствует');
                 this.schedule.children('tbody').append(tr);
+                if (this.schedule.find('tbody tr:not(:first)').length > 1)
+                    this.actions.find('a[data-action=done]').removeClass('d-none');
             },
 
             fillSchedule: function (marks) {
@@ -23,6 +26,16 @@
                 this.actions.find('a[data-action='
                     + (marks[marks.length - 1].state ? 'resume' : 'wait')
                     + ']').addClass('d-none');
+            },
+
+            prepare: function (data) {
+                this.actions.removeClass('d-none');
+                this.worktime.removeClass('d-none');
+                this.schedule.removeClass('d-none');
+                if ('marks' in data && data.marks.length)
+                    this.fillSchedule(data.marks);
+                else
+                    this.actions.find('a[data-action=wait]').addClass('d-none');
             },
 
             login: function (event) {
@@ -37,16 +50,34 @@
                         self.token = data.token;
                         self.form.addClass('d-none');
                         self.btnLogout.removeClass('d-none');
-                        self.actions.removeClass('d-none');
-                        self.worktime.removeClass('d-none');
-                        self.schedule.removeClass('d-none');
-                        if ('marks' in data && data.marks.length)
-                            self.fillSchedule(data.marks);
+                        if ('validwday' in data && !data.validwday)
+                            self.wdays.removeClass('d-none');
                         else
-                            self.actions.find('a[data-action=wait]').addClass('d-none');
+                            self.prepare(data);
                     } else {
                         //TODO: обработка ошибок.
                     }
+                    console.log(data);
+                });
+            },
+
+            chooseWday: function (event) {
+                var tar = $(event.target);
+                if (!tar.hasClass('js-wday')) return;
+                event.preventDefault();
+                var obj = {
+                    token: this.token,
+                    action: tar.attr('data-action')
+                };
+                var self = this;
+                $.post(window.location.href, obj, function (data) {
+                    if (data.status == 'ok') {
+                        self.wdays.addClass('d-none');
+                        self.prepare(data);
+                    } else {
+                        //TODO: обработка ошибок.
+                    }
+                    console.log(data);
                 });
             },
 
@@ -94,6 +125,10 @@
                     self.login.call(self, event);
                 });
                 this.btnLogout = $('.js-btn-logout');
+                this.wdays = $('.js-wdays');
+                this.wdays.on('click', function (event) {
+                    self.chooseWday.call(self, event);
+                });
                 this.actions = $('.js-tracker-actions');
                 this.actions.on('click', function (event) {
                     self.action.call(self, event);

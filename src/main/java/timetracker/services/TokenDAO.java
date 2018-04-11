@@ -19,7 +19,7 @@ import timetracker.utils.DBDriver;
  * Класс TokenDAO реализует шаблон Репозиторий для сущности Токен.
  *
  * @author Goureev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-09
+ * @version 2018-04-11
  * @since 2018-04-09
  */
 public class TokenDAO {
@@ -131,18 +131,19 @@ public class TokenDAO {
      */
     public boolean update(Token token) throws SQLException {
         boolean result = false;
-        GregorianCalendar wday = new GregorianCalendar();
-        wday.set(Calendar.HOUR, 0);
-        wday.set(Calendar.HOUR_OF_DAY, 0);
-        wday.set(Calendar.MINUTE, 0);
-        wday.set(Calendar.SECOND, 0);
-        wday.set(Calendar.MILLISECOND, 0);
-        token.setWday(wday);
+        GregorianCalendar wdayOld = token.getWday();
+        GregorianCalendar wdayNew = new GregorianCalendar();
+        wdayNew.set(Calendar.HOUR, 0);
+        wdayNew.set(Calendar.HOUR_OF_DAY, 0);
+        wdayNew.set(Calendar.MINUTE, 0);
+        wdayNew.set(Calendar.SECOND, 0);
+        wdayNew.set(Calendar.MILLISECOND, 0);
+        token.setWday(wdayNew);
         String query = String.format("update %s set wday = '%s' where token = '%s'", this.db.getProperty("tbl_tokens"), token.getWdayStr(), token.getToken());
         if (this.db.update(query) > 0) {
         	result = true;
         } else {
-            token.setWday(null);
+            token.setWday(wdayOld);
         }
         return result;
     }

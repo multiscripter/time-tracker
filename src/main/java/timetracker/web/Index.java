@@ -23,7 +23,7 @@ import timetracker.utils.Utils;
  * Класс TimeTracker контроллер приложения Трэкер времени.
  *
  * @author Goureev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-10
+ * @version 2018-04-11
  * @since 2018-04-06
  */
 public class Index extends AbstractServlet {
@@ -51,7 +51,7 @@ public class Index extends AbstractServlet {
     public void init() throws ServletException {
     	try {
             super.init();
-            this.logger = LogManager.getLogger(this.getClass().getSimpleName());
+            this.logger = LogManager.getLogger(this.getClass().getName());
             this.mdao = new MarkDAO();
             this.tdao = new TokenDAO();
             this.utils = new Utils();
@@ -93,46 +93,60 @@ public class Index extends AbstractServlet {
             String enc = (String) req.getAttribute("encoding");
             this.tdao.setEncoding(enc);
             if (req.getParameterMap().containsKey("action") && req.getParameterMap().containsKey("token")) {
-                String action = req.getParameter("action").trim();
                 String tokenStr = req.getParameter("token").trim();
+                String action = req.getParameter("action").trim();
                 if (!action.isEmpty() && !tokenStr.isEmpty()) {
                     Token token = this.tdao.read("token", tokenStr);
                     if (token != null) {
-                        if (token.getWday() == null && !this.tdao.update(token)) {
-                            jsonb.add("status", "error");
-                            errors.add("token", "update");
-                        } else {
-                            LinkedList<Mark> marks = this.mdao.read(token.getToken());
-                            if (action.equals("resume")) {
+                        LinkedList<Mark> marks = this.mdao.read(token.getToken());
+                        if (action.equals("wdaynew")) {
+                            if (!this.tdao.update(token)) {
+                                jsonb.add("status", "error");
+                                errors.add("token", "notupdated");
+                            } else {
+                                jsonb.add("status", "ok");
+                            }
+                        } else if (action.equals("wdayold")) {
+                            this.utils.addMarksToJson(marks, jsonb);
+                            jsonb.add("status", "ok");
+                        } else if (action.equals("resume")) {
+                            boolean updated = true;
+                            if (token.getWday() == null) {
+                                updated = this.tdao.update(token);
+                            }
+                            if (updated) {
                                 if (!marks.isEmpty() && marks.getLast().getState()) {
                                     jsonb.add("status", "error");
                                     errors.add("mark", "badseq");
                                 } else {
                                     this.utils.process(token, true, "create", jsonb, errors);
                                 }
-                            } else if (action.equals("wait")) {
-                                if (marks.isEmpty() || !marks.getLast().getState()) {
-                                    jsonb.add("status", "error");
-                                    errors.add("mark", "badseq");
-                                } else {
-                                    this.utils.process(token, false, "create", jsonb, errors);
-                                }
-                            } else if (action.equals("done")) {
-                                if (!marks.isEmpty() && marks.size() > 1) {
-                                    long[] times = this.utils.getWorkTime(marks);
-                                    JsonArrayBuilder jsonTimes = Json.createArrayBuilder();
-                                    for (long item : times) {
-                                        jsonTimes.add(item);
-                                    }
-                                    jsonb.add("worktime", jsonTimes);
-                                    jsonb.add("status", "ok");
-                                } else {
-                                    jsonb.add("status", "error");
-                                    errors.add("done", "notime");
-                                }
                             } else {
-                                errors.add("action", "param-bad");
+                                jsonb.add("status", "error");
+                                errors.add("token", "notupdated");
                             }
+                        } else if (action.equals("wait")) {
+                            if (marks.isEmpty() || !marks.getLast().getState()) {
+                                jsonb.add("status", "error");
+                                errors.add("mark", "badseq");
+                            } else {
+                                this.utils.process(token, false, "create", jsonb, errors);
+                            }
+                        } else if (action.equals("done")) {
+                            if (!marks.isEmpty() && marks.size() > 1) {
+                                long[] times = this.utils.getWorkTime(marks);
+                                JsonArrayBuilder jsonTimes = Json.createArrayBuilder();
+                                for (long item : times) {
+                                    jsonTimes.add(item);
+                                }
+                                jsonb.add("status", "ok");
+                                jsonb.add("worktime", jsonTimes);
+                            } else {
+                                jsonb.add("status", "error");
+                                errors.add("done", "notime");
+                            }
+                        } else {
+                            errors.add("action", "param-bad");
                         }
                     } else {
                         jsonb.add("status", "error");

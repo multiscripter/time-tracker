@@ -14,7 +14,7 @@ import static org.junit.Assert.assertFalse;
  * Класс MarkTest тестирует класс Mark.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-08
+ * @version 2018-04-11
  * @since 2018-04-08
  */
 public class MarkTest {
@@ -39,10 +39,9 @@ public class MarkTest {
         wday.set(Calendar.MINUTE, 0);
         wday.set(Calendar.SECOND, 0);
         wday.set(Calendar.MILLISECOND, 0);
-        String token = this.getHash(login + wday.toString());
         GregorianCalendar timeMark = new GregorianCalendar();
         timeMark.set(Calendar.MILLISECOND, 0);
-        this.mark = new Mark(id, token, wday, timeMark, false);
+        this.mark = new Mark(id, wday, timeMark, false);
     }
     /**
      * Тестирует public boolean equals(Object obj).
@@ -56,12 +55,10 @@ public class MarkTest {
         owday.set(Calendar.MINUTE, 0);
         owday.set(Calendar.SECOND, 0);
         owday.set(Calendar.MILLISECOND, 0);
-        String otoken = this.getHash("Тестовой логин" + owday.toString());
         GregorianCalendar omark = new GregorianCalendar();
         omark.set(Calendar.MILLISECOND, 0);
         Mark other = new Mark();
         other.setUserId(1);
-        other.setToken(otoken);
         other.setWday(owday);
         other.setMark(omark);
         other.setState(false);
@@ -99,7 +96,7 @@ public class MarkTest {
      */
     @Test
     public void testEqualsDifferentUserId() {
-        Mark tedui = new Mark(2, "asdasd", new GregorianCalendar(), new GregorianCalendar(), false);
+        Mark tedui = new Mark(2, new GregorianCalendar(), new GregorianCalendar(), false);
         assertFalse(this.mark.equals(tedui));
     }
     /**
@@ -137,10 +134,9 @@ public class MarkTest {
         thcwday.set(Calendar.MINUTE, 0);
         thcwday.set(Calendar.SECOND, 0);
         thcwday.set(Calendar.MILLISECOND, 0);
-        String thcwdaytoken = this.getHash("Тестовой логин" + thcwday.toString());
         GregorianCalendar thcmark = new GregorianCalendar();
         thcmark.set(Calendar.MILLISECOND, 0);
-        int expected = Objects.hash(1, thcwdaytoken, thcwday, thcmark, false);
+        int expected = Objects.hash(1, thcwday, thcmark, false);
         assertEquals(expected, this.mark.hashCode());
     }
     /**
@@ -154,10 +150,9 @@ public class MarkTest {
         ttswday.set(Calendar.MINUTE, 0);
         ttswday.set(Calendar.SECOND, 0);
         ttswday.set(Calendar.MILLISECOND, 0);
-        String ttswdaytoken = this.getHash("Тестовой логин" + ttswday.toString());
         GregorianCalendar ttsmark = new GregorianCalendar();
         ttsmark.set(Calendar.MILLISECOND, 0);
-        String expected = String.format("mark[userId: 1, token: %s, wday: %2$tY-%2$tm-%2$td, mark: %3$tY-%3$tm-%3$td %3$tH:%3$tM:%3$tS, state: false]", ttswdaytoken, ttswday, ttsmark);
+        String expected = String.format("mark[userId: 1, wday: %1$tY-%1$tm-%1$td, mark: %2$tY-%2$tm-%2$td %2$tH:%2$tM:%2$tS, state: false]", ttswday, ttsmark);
         assertEquals(expected, this.mark.toString());
     }
     /**

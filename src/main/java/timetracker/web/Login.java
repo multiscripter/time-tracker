@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.LinkedList;
 import javax.json.Json;
-import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonWriter;
@@ -20,11 +19,12 @@ import timetracker.models.Token;
 import timetracker.services.MarkDAO;
 import timetracker.services.TokenDAO;
 import timetracker.services.UserRepository;
+import timetracker.utils.Utils;
 /**
  * Класс Login контроллер авторизации приложения Трэкер времени.
  *
  * @author Goureev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-09
+ * @version 2018-04-11
  * @since 2018-04-09
  */
 public class Login extends AbstractServlet {
@@ -45,6 +45,10 @@ public class Login extends AbstractServlet {
      */
     private UserRepository ur;
     /**
+     * Утилиты.
+     */
+    private Utils utils;
+    /**
 	 * Инициализатор.
      * @throws javax.servlet.ServletException исключение сервлета.
 	 */
@@ -52,10 +56,11 @@ public class Login extends AbstractServlet {
     public void init() throws ServletException {
     	try {
             super.init();
-            this.logger = LogManager.getLogger(this.getClass().getSimpleName());
+            this.logger = LogManager.getLogger(this.getClass().getName());
             this.mdao = new MarkDAO();
             this.tdao = new TokenDAO();
             this.ur = new UserRepository();
+            this.utils = new Utils();
         } catch (Exception ex) {
 			this.logger.error("ERROR", ex);
 		}
@@ -96,18 +101,15 @@ public class Login extends AbstractServlet {
                         if (token != null) {
                             jsonb.add("status", "ok");
                             jsonb.add("token", token.getToken());
-                            LinkedList<Mark> marks = this.mdao.read(token.getToken());
-                            JsonArrayBuilder jsonMarks = Json.createArrayBuilder();
-                            if (!marks.isEmpty()) {
-                                for (Mark mark : marks) {
-                                    JsonObjectBuilder jsonMark = Json.createObjectBuilder();
-                                    jsonMark.add("wday", mark.getWdayStr());
-                                    jsonMark.add("mark", mark.getMarkStr());
-                                    jsonMark.add("state", mark.getState());
-                                    jsonMarks.add(jsonMark);
+                            if (token.getWday() != null) {
+                                if (this.utils.validateWday(token)) {
+                                    jsonb.add("validwday", true);
+                                    LinkedList<Mark> marks = this.mdao.read(token.getToken());
+                                    this.utils.addMarksToJson(marks, jsonb);
+                                } else {
+                                    jsonb.add("validwday", false);
                                 }
                             }
-                            jsonb.add("marks", jsonMarks);
                         } else {
                             if (this.tdao.create(user)) {
                                 jsonb.add("status", "ok");
