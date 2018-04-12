@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Objects;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -13,7 +14,7 @@ import static org.junit.Assert.assertFalse;
  * Класс TokenTest тестирует класс Token.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-10
+ * @version 2018-04-12
  * @since 2018-04-10
  */
 public class TokenTest {
@@ -96,6 +97,19 @@ public class TokenTest {
         assertFalse(this.token.equals(tedu));
     }
     /**
+     * Тестирует public GregorianCalendar getWday().
+     */
+    @Test
+    public void testGetWday() {
+        GregorianCalendar expected = new GregorianCalendar();
+        expected.set(Calendar.HOUR, 0);
+        expected.set(Calendar.HOUR_OF_DAY, 0);
+        expected.set(Calendar.MINUTE, 0);
+        expected.set(Calendar.SECOND, 0);
+        expected.set(Calendar.MILLISECOND, 0);
+        assertEquals(expected, this.token.getWday());
+    }
+    /**
      * Тестирует public String getWdayStr().
      */
     @Test
@@ -108,6 +122,21 @@ public class TokenTest {
         tgws.set(Calendar.MILLISECOND, 0);
         String expected = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS", tgws);
         assertEquals(expected, this.token.getWdayStr());
+    }
+    /**
+     * Тестирует public int hashCode().
+     */
+    @Test
+    public void testHashCode() {
+        GregorianCalendar thc = new GregorianCalendar();
+        thc.set(Calendar.HOUR, 0);
+        thc.set(Calendar.HOUR_OF_DAY, 0);
+        thc.set(Calendar.MINUTE, 0);
+        thc.set(Calendar.SECOND, 0);
+        thc.set(Calendar.MILLISECOND, 0);
+        String thctoken = this.getHash("Тестовой логин" + thc.toString());
+        int expected = Objects.hash(1, thctoken);
+        assertEquals(expected, this.token.hashCode());
     }
     /**
      * Тестирует public String toString().

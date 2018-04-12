@@ -14,7 +14,7 @@ import static org.junit.Assert.assertFalse;
  * Класс UserTest тестирует класс User.
  *
  * @author Gureyev Ilya (mailto:ill-jah@yandex.ru)
- * @version 2018-04-10
+ * @version 2018-04-12
  * @since 2018-04-08
  */
 public class UserTest {
@@ -114,6 +114,28 @@ public class UserTest {
     @Test
     public void testGetId() {
         assertEquals(1, this.user.getId());
+    }
+    /**
+     * Тестирует public String getToken().
+     */
+    @Test
+    public void testGetToken() {
+        String login = "Тестовой логин";
+        String pass = this.getHash("Тестовый пароль");
+        GregorianCalendar wday = new GregorianCalendar();
+        wday.set(Calendar.MILLISECOND, 0);
+        String expected = this.getHash(login + wday.toString());
+        assertEquals(expected, this.user.getToken());
+    }
+    /**
+     * Тестирует public GregorianCalendar getWday().
+     */
+    @Test
+    public void testGetWday() {
+        GregorianCalendar expected = new GregorianCalendar();
+        expected.set(Calendar.MILLISECOND, 0);
+        expected.set(2018, 3, 8, 0, 0, 0);
+        assertEquals(expected, this.user.getWday());
     }
     /**
      * Тестирует public int hashCode().

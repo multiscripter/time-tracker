@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import org.junit.Before;
-import org.junit.Ignore;
+//import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -77,7 +77,7 @@ public class MarkDAOTest {
     /**
      * Тестирует public boolean create(Mark mark) throws SQLException.
      */
-    @Ignore@Test
+    @Test
     public void testCreate() {
         try {
             assertTrue(this.md.create(this.mark));
@@ -88,7 +88,7 @@ public class MarkDAOTest {
     /**
      * Тестирует public boolean delete(Mark mark) throws SQLException.
      */
-    @Ignore@Test
+    @Test
     public void testDelete() {
         try {
             this.md.create(this.mark);
@@ -100,11 +100,26 @@ public class MarkDAOTest {
     /**
      * Тестирует public List<Mark> read(final String token) throws SQLException, ParseException.
      */
-    @Ignore@Test
+    @Test
     public void testRead() {
         try {
+            String trtoken = "test_token_user_2";
+            List<HashMap<String, String>> expected = this.dbDriver.select(String.format("select * from %1$s, %2$s where %1$s.user_id = %2$s.user_id and %1$s.wday = %2$s.wday and %1$s.token = '%3$s' order by mark", this.props.getProperty("tbl_tokens"), this.props.getProperty("tbl_marks"), trtoken));
+            List<Mark> actual = this.md.read(trtoken);
+            assertEquals(expected.size(), actual.size());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    /**
+     * Тестирует public List<Mark> read(final String token) throws SQLException, ParseException.
+     * Возвращает пустой набор.
+     */
+    @Test
+    public void testReadEmptyResultSet() {
+        try {
             String trtoken = "13fe018b338e5f605a7eb281ed3134dc";
-            List<HashMap<String, String>> expected = this.dbDriver.select(String.format("select * from %1s, %2s where %1s.user_id = %2s.user_id and %1s.wday = %2s.wday and %1.token = '%3s' order by mark", this.props.getProperty("tbl_tokens"), this.props.getProperty("tbl_marks"), trtoken));
+            List<HashMap<String, String>> expected = this.dbDriver.select(String.format("select * from %1$s, %2$s where %1$s.user_id = %2$s.user_id and %1$s.wday = %2$s.wday and %1$s.token = '%3s' order by mark", this.props.getProperty("tbl_tokens"), this.props.getProperty("tbl_marks"), trtoken));
             List<Mark> actual = this.md.read(trtoken);
             assertEquals(expected.size(), actual.size());
         } catch (Exception ex) {
@@ -114,7 +129,7 @@ public class MarkDAOTest {
     /**
      * Тестирует public List<Mark> read(final String token) throws SQLException, ParseException.
      */
-    @Ignore@Test
+    @Test
     public void testReadNoMarks() {
         try {
             List<Mark> marks = this.md.read("fake_token");
@@ -126,7 +141,7 @@ public class MarkDAOTest {
     /**
      * Тестирует public boolean update(Mark mark) throws SQLException.
      */
-    @Ignore@Test
+    @Test
     public void testUpdate() {
         try {
             this.md.create(this.mark);
