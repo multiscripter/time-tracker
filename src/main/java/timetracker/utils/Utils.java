@@ -131,6 +131,7 @@ public class Utils {
         GregorianCalendar today = new GregorianCalendar(tz);
         GregorianCalendar wday = new GregorianCalendar(tz);
         wday.setTime(token.getWday().getTime());
+        // Неправильно сравнивает today и wday.
         this.logger.error("today.toString(): " + today.toString());
         this.logger.error("wday.toString(): " + wday.toString());
         wday.setTime(token.getWday().getTime());

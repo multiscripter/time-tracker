@@ -14,7 +14,7 @@
                 tr.children('td:nth-child(1)').text(mark.wday);
                 tr.children('td:nth-child(2)').text(mark.mark);
                 tr.children('td:nth-child(3)').attr('data-state',
-                    mark.state).text(mark.state ? 'На работе' : 'Отсутствует');
+                    mark.state).text(mark.state ? 'РќР° СЂР°Р±РѕС‚Рµ' : 'РћС‚СЃСѓС‚СЃС‚РІСѓРµС‚');
                 this.schedule.children('tbody').append(tr);
                 if (this.schedule.find('tbody tr:not(:first)').length > 1)
                     this.actions.find('a[data-action=done]').removeClass('d-none');
@@ -55,7 +55,7 @@
                         else
                             self.prepare(data);
                     } else {
-                        //TODO: обработка ошибок.
+                        //TODO: РѕР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РѕРє.
                     }
                     console.log(data);
                 });
@@ -75,7 +75,7 @@
                         self.wdays.addClass('d-none');
                         self.prepare(data);
                     } else {
-                        //TODO: обработка ошибок.
+                        //TODO: РѕР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РѕРє.
                     }
                     console.log(data);
                 });
@@ -111,7 +111,7 @@
                             self.worktime.children('span').text(time.substr(0, time.length - 1));
                         }
                     } else {
-                        //TODO: обработка ошибок.
+                        //TODO: РѕР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РѕРє.
                     }
                     console.log(data);
                 });
